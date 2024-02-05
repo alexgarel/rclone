@@ -183,12 +183,30 @@ type GetTierer interface {
 	GetTier() string
 }
 
-// Metadataer is an optional interface for Object
+// Metadataer is an optional interface for DirEntry
 type Metadataer interface {
-	// Metadata returns metadata for an object
+	// Metadata returns metadata for an DirEntry
 	//
 	// It should return nil if there is no Metadata
 	Metadata(ctx context.Context) (Metadata, error)
+}
+
+// SetMetadataer is an optional interface for DirEntry
+type SetMetadataer interface {
+	// SetMetadata sets metadata for an DirEntry
+	//
+	// It should return fs.ErrorNotImplemented if it can't set metadata
+	SetMetadata(ctx context.Context, metadata Metadata) error
+}
+
+// SetModTimer is an optional interface for Directory.
+//
+// Object implements this as part of its requires set of interfaces.
+type SetModTimer interface {
+	// SetModTime sets the metadata on the DirEntry to set the modification date
+	//
+	// If there is any other metadata it does not overwrite it.
+	SetModTime(ctx context.Context, t time.Time) error
 }
 
 // FullObjectInfo contains all the read-only optional interfaces
