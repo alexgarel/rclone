@@ -18,7 +18,7 @@ func TestIntegration(t *testing.T) {
 	fstests.Run(t, &fstests.Opt{
 		RemoteName:                   "TestCache:",
 		NilObject:                    (*cache.Object)(nil),
-		UnimplementableFsMethods:     []string{"PublicLink", "OpenWriterAt", "OpenChunkWriter", "DirSetModTime"},
+		UnimplementableFsMethods:     []string{"PublicLink", "OpenWriterAt", "OpenChunkWriter", "DirSetModTime", "MkdirMetadata"},
 		UnimplementableObjectMethods: []string{"MimeType", "ID", "GetTier", "SetTier", "Metadata"},
 		SkipInvalidUTF8:              true, // invalid UTF-8 confuses the cache
 	})

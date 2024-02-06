@@ -338,13 +338,18 @@ func NewFs(ctx context.Context, name, rpath string, m configmap.Mapper) (fs.Fs, 
 	// Note 2: features.Fill() points features.PutStream to our PutStream,
 	// but features.Mask() will nullify it if wrappedFs does not have it.
 	f.features = (&fs.Features{
-		CaseInsensitive:         true,
-		DuplicateFiles:          true,
-		ReadMimeType:            false, // Object.MimeType not supported
-		WriteMimeType:           true,
-		BucketBased:             true,
-		CanHaveEmptyDirectories: true,
-		ServerSideAcrossConfigs: true,
+		CaseInsensitive:          true,
+		DuplicateFiles:           true,
+		ReadMimeType:             false, // Object.MimeType not supported
+		WriteMimeType:            true,
+		BucketBased:              true,
+		CanHaveEmptyDirectories:  true,
+		ServerSideAcrossConfigs:  true,
+		ReadDirMetadata:          true,
+		WriteDirMetadata:         true,
+		WriteDirSetModTime:       true,
+		UserDirMetadata:          true,
+		DirModTimeUpdatesOnWrite: true,
 	}).Fill(ctx, f).Mask(ctx, baseFs).WrapsFs(f, baseFs)
 
 	f.features.Disable("ListR") // Recursive listing may cause chunker skip files
@@ -1571,6 +1576,14 @@ func (f *Fs) Mkdir(ctx context.Context, dir string) error {
 	return f.base.Mkdir(ctx, dir)
 }
 
+// MkdirMetadata makes the root directory of the Fs object
+func (f *Fs) MkdirMetadata(ctx context.Context, dir string, metadata fs.Metadata) (fs.Directory, error) {
+	if do := f.Features().MkdirMetadata; do != nil {
+		return do(ctx, dir, metadata)
+	}
+	return nil, fs.ErrorNotImplemented
+}
+
 // Rmdir removes the directory (container, bucket) if empty
 //
 // Return an error if it doesn't exist or isn't empty
@@ -2557,6 +2570,7 @@ var (
 	_ fs.Mover           = (*Fs)(nil)
 	_ fs.DirMover        = (*Fs)(nil)
 	_ fs.DirSetModTimer  = (*Fs)(nil)
+	_ fs.MkdirMetadataer = (*Fs)(nil)
 	_ fs.PutUncheckeder  = (*Fs)(nil)
 	_ fs.PutStreamer     = (*Fs)(nil)
 	_ fs.CleanUpper      = (*Fs)(nil)
